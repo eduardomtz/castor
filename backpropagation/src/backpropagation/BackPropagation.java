@@ -13,6 +13,10 @@ public class BackPropagation {
     public double ErrorPrueba;
     public int maletiquetadasEntrenamiento;
     public int maletiquetadasPrueba;
+    public ArrayList<double[]> test;
+    public ArrayList<double[]> train;
+    int noIndependientes;
+    int noDependientes;
     
     // Error Function variable that is calculated using the CalculateOverallError() function
     private double	OverallError;
@@ -174,6 +178,9 @@ public class BackPropagation {
                                     int noDependientes) {
 
             int i,j;
+            
+            this.noIndependientes = noIndependientes;
+            this.noDependientes = noDependientes;
 
             // Initiate variables
             NumberOfSamples = InputSamples.size();
@@ -232,6 +239,15 @@ public class BackPropagation {
                             UpdateWeights();
                     }
                     k++;
+                    
+                    if(k%1000==0){
+                        calcularErrorEntrenamientoPruebas();
+                        System.out.println("Epocas: " + k );
+                        System.out.println("Error entrenamiento: " + ErrorEntrenamiento + ", error prueba: " + ErrorPrueba);
+                        System.out.println("Error entrenamiento: " + Math.round((double)maletiquetadasEntrenamiento/train.size() * 100) + ", error prueba: " + Math.round((double)maletiquetadasPrueba/test.size() * 100));
+                    }
+                    
+                    
                     // System.out.println("Epocas " + k);
                     // Calculate Error Function
                     CalculateOverallError();
@@ -271,4 +287,82 @@ public class BackPropagation {
 
             return salida;
     } 
+    
+    
+    public void calcularErrorEntrenamientoPruebas(){
+        double rmsPrueba = 0.0;
+        int malEtiquetadasPrueba = 0;
+        for(int i=0;i<test.size();i++)
+        {
+            double[] ind = new double[noIndependientes];
+            double[] dep = new double[noDependientes];
+            for(int j=0;j<test.get(i).length;j++){
+                if(j<noIndependientes)
+                    ind[j]=test.get(i)[j];
+                else
+                    dep[j-noIndependientes]=test.get(i)[j];
+            }
+            
+            double[] res = test(ind);
+            // imprimir clasificacion de la red para entrenamiento
+            /*
+            for(int j=0;j<noIndependientes+noDependientes;j++){
+                if(j<noIndependientes)
+                    System.out.print("" + ind[j] + " ");
+                else
+                    System.out.print("" + res[j-noIndependientes] + " ");
+            }
+            System.out.println("");
+            */
+            
+            for(int j=0;j<res.length;j++)
+            {
+                double error = Math.abs(res[j]-dep[j]);
+                if(error > 0.5)
+                    malEtiquetadasPrueba++;
+                rmsPrueba = rmsPrueba + error;
+            }
+        }
+        //System.out.println("Mal etiquetadas: " + malEtiquetadas + ", ECM: " + rmsPrueba);
+        
+        double rmsEntrenamiento = 0.0;
+        int malEtiquetadasEntrenamiento = 0;
+        for(int i=0;i<train.size();i++)
+        {
+            double[] ind = new double[noIndependientes];
+            double[] dep = new double[noDependientes];
+            for(int j=0;j<train.get(i).length;j++){
+                if(j<noIndependientes)
+                    ind[j]=train.get(i)[j];
+                else
+                    dep[j-noIndependientes]=train.get(i)[j];
+            }
+            
+            double[] res = test(ind);
+            
+            // imprimir clasificacion de la red para prueba
+            /*
+            for(int j=0;j<noIndependientes+noDependientes;j++){
+                if(j<noIndependientes)
+                    System.out.print("" + ind[j] + " ");
+                else
+                    System.out.print("" + res[j-noIndependientes] + " ");
+            }
+            System.out.println("");
+            */
+            
+            for(int j=0;j<res.length;j++)
+            {
+                double error = Math.abs(res[j]-dep[j]);
+                if(error > 0.5)
+                    malEtiquetadasEntrenamiento++;
+                rmsEntrenamiento = rmsEntrenamiento + error;
+            }
+        }
+        
+        ErrorEntrenamiento = rmsEntrenamiento;
+        maletiquetadasEntrenamiento = malEtiquetadasEntrenamiento;
+        ErrorPrueba = rmsPrueba;
+        maletiquetadasPrueba = malEtiquetadasPrueba;
+    }
 }

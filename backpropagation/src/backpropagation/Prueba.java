@@ -97,14 +97,14 @@ public class Prueba {
             double learnRate = 0.1;
             double moment = 0.9;
             double minError = 0.01;
-            long epocas = 40000;
+            int epocas = 40000;
             
             int incremento = ejecucion.size()/5; // 20% de los datos
             
             // entrenar red neuronal
-            for(int i=0;i<epocas;i++) {
-                if((i%1000)==0)
-                {
+            //for(int i=0;i<epocas;i++) {
+                //if((i%1000)==0)
+                //{
                     ArrayList<double[]> train = new ArrayList();
                     ArrayList<double[]> test = new ArrayList();
                     // 20% de los datos
@@ -116,12 +116,10 @@ public class Prueba {
                         else
                             train.add(ejecucion.get(indicesAleatorios[j]));
                     }
-                    BackPropagation red = entrenarRedNeuronal(train, test, neurons,learnRate,moment,minError,i,noIndependientes,noDependientes);
-                    System.out.println("Epocas: " + i );
-                    System.out.println("Error entrenamiento: " + red.ErrorEntrenamiento + ", error prueba: " + red.ErrorPrueba);
-                    System.out.println("Error entrenamiento: " + Math.round((double)red.maletiquetadasEntrenamiento/train.size() * 100) + ", error prueba: " + Math.round((double)red.maletiquetadasPrueba/test.size() * 100));
-                }
-            }
+                    BackPropagation red = entrenarRedNeuronal(train, test, neurons,learnRate,moment,minError,epocas,noIndependientes,noDependientes);
+                    
+                //}
+            //}
             
             
             
@@ -263,87 +261,14 @@ public class Prueba {
         BackPropagation net = new BackPropagation(neurons, train, 
                         learnRate, moment,
                         minError, epocas, noIndependientes, noDependientes);
+        net.test = test;
+        net.train = train;
         // System.out.println("Inicia entrenamiento");
         net.TrainNetwork();
         // System.out.print("Fin entrenamiento");
         
         // ArrayList<double[]> test = leerArchivo("test.txt");
         System.out.println("Archivo prueba: " + test.size());
-        
-        double rmsPrueba = 0.0;
-        int malEtiquetadasPrueba = 0;
-        for(int i=0;i<test.size();i++)
-        {
-            double[] ind = new double[noIndependientes];
-            double[] dep = new double[noDependientes];
-            for(int j=0;j<test.get(i).length;j++){
-                if(j<noIndependientes)
-                    ind[j]=test.get(i)[j];
-                else
-                    dep[j-noIndependientes]=test.get(i)[j];
-            }
-            
-            double[] res = net.test(ind);
-            // imprimir clasificacion de la red para entrenamiento
-            /*
-            for(int j=0;j<noIndependientes+noDependientes;j++){
-                if(j<noIndependientes)
-                    System.out.print("" + ind[j] + " ");
-                else
-                    System.out.print("" + res[j-noIndependientes] + " ");
-            }
-            System.out.println("");
-            */
-            
-            for(int j=0;j<res.length;j++)
-            {
-                double error = Math.abs(res[j]-dep[j]);
-                if(error > 0.5)
-                    malEtiquetadasPrueba++;
-                rmsPrueba = rmsPrueba + error;
-            }
-        }
-        //System.out.println("Mal etiquetadas: " + malEtiquetadas + ", ECM: " + rmsPrueba);
-        
-        double rmsEntrenamiento = 0.0;
-        int malEtiquetadasEntrenamiento = 0;
-        for(int i=0;i<train.size();i++)
-        {
-            double[] ind = new double[noIndependientes];
-            double[] dep = new double[noDependientes];
-            for(int j=0;j<train.get(i).length;j++){
-                if(j<noIndependientes)
-                    ind[j]=train.get(i)[j];
-                else
-                    dep[j-noIndependientes]=train.get(i)[j];
-            }
-            
-            double[] res = net.test(ind);
-            
-            // imprimir clasificacion de la red para prueba
-            /*
-            for(int j=0;j<noIndependientes+noDependientes;j++){
-                if(j<noIndependientes)
-                    System.out.print("" + ind[j] + " ");
-                else
-                    System.out.print("" + res[j-noIndependientes] + " ");
-            }
-            System.out.println("");
-            */
-            
-            for(int j=0;j<res.length;j++)
-            {
-                double error = Math.abs(res[j]-dep[j]);
-                if(error > 0.5)
-                    malEtiquetadasEntrenamiento++;
-                rmsEntrenamiento = rmsEntrenamiento + error;
-            }
-        }
-        
-        net.ErrorEntrenamiento = rmsEntrenamiento;
-        net.maletiquetadasEntrenamiento = malEtiquetadasEntrenamiento;
-        net.ErrorPrueba = rmsPrueba;
-        net.maletiquetadasPrueba = malEtiquetadasPrueba;
         
         return net;
     }
