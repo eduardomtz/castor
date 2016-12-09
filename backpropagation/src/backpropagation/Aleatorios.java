@@ -14,12 +14,14 @@ import java.util.Random;
 public class Aleatorios {
     // raiz generadora de numeros aleatorios
     
-    // raiz generadora de numeros aleatorios
-    static int seed = 1234567890;
-    private static Random generador = new Random(seed);
+    private static Random generador;
     
     public static double getAleatorio()
     {
         return generador.nextDouble();
+    }
+    
+    public static void setSeed(int seed){
+        generador = new Random(seed);
     }
 }

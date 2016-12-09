@@ -9,6 +9,11 @@ import java.io.*;
  */
 public class BackPropagation {
 
+    public double ErrorEntrenamiento;
+    public double ErrorPrueba;
+    public int maletiquetadasEntrenamiento;
+    public int maletiquetadasPrueba;
+    
     // Error Function variable that is calculated using the CalculateOverallError() function
     private double	OverallError;
 
@@ -227,7 +232,7 @@ public class BackPropagation {
                             UpdateWeights();
                     }
                     k++;
-                    System.out.println("Epocas " + k);
+                    // System.out.println("Epocas " + k);
                     // Calculate Error Function
                     CalculateOverallError();
             } while ((OverallError > MinimumError) && (k < MaximumNumberOfIterations));
